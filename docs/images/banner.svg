@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="New Chisel  Independent Evidence">
+  <rect width="1280" height="320" fill="#f1eee6"/>
+  <rect x="0" y="0" width="1280" height="4" fill="#1c1914"/>
+  <rect x="0" y="316" width="1280" height="4" fill="#9c3b16"/>
+  <g transform="translate(72, 86)">
+    <path d="M0 92 L52 -8 L66 0 L14 100 Z" fill="#1c1914"/>
+    <path d="M52 -8 L82 10 L67 17 L59 3 Z" fill="#9c3b16"/>
+  </g>
+  <text x="178" y="148" fill="#1c1914" font-family="Palatino Linotype, Palatino, Iowan Old Style, Times New Roman, serif" font-size="64">New Chisel</text>
+  <text x="182" y="186" fill="#9c3b16" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="14" letter-spacing="6">INDEPENDENT EVIDENCE</text>
+  <text x="182" y="232" fill="#6b6559" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="20">A sealed, hash-checkable record of the agent you actually run.</text>
+</svg>

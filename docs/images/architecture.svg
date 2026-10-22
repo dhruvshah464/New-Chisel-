@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420" role="img" aria-label="How New Chisel sits between the agent and its tools">
+  <rect width="980" height="420" fill="#f1eee6"/>
+  <style>
+    .box { fill: #faf8f2; stroke: #1c1914; stroke-width: 1.25; }
+    .accent { fill: #faf8f2; stroke: #9c3b16; stroke-width: 1.5; }
+    .t { font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif; fill: #1c1914; }
+    .s { font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif; fill: #6b6559; font-size: 12px; }
+    .h { font-family: "Palatino Linotype", Palatino, "Times New Roman", serif; fill: #1c1914; font-size: 16px; }
+    .tiny { font-family: "SF Mono", Menlo, Consolas, monospace; fill: #9c3b16; font-size: 11px; }
+  </style>
+  <text x="28" y="36" class="h">One trial, from the outside</text>
+  <text x="28" y="58" class="s">The agents code does not change. aisec rewrites the MCP config so every server is launched behind the recording proxy.</text>
+
+  <rect class="box" x="28" y="84" width="160" height="88" rx="0"/>
+  <text x="44" y="118" class="t" font-size="14">You</text>
+  <text x="44" y="140" class="s">scenarios + warrant</text>
+  <text x="44" y="156" class="tiny">aisec run</text>
+
+  <rect class="accent" x="228" y="84" width="200" height="88" rx="0"/>
+  <text x="244" y="118" class="t" font-size="14">aisec runner</text>
+  <text x="244" y="140" class="s">sandbox · replay · trials</text>
+  <text x="244" y="156" class="tiny">success_check on the log</text>
+
+  <rect class="box" x="468" y="84" width="180" height="88" rx="0"/>
+  <text x="484" y="118" class="t" font-size="14">Agent</text>
+  <text x="484" y="140" class="s">model or scripted replay</text>
+  <text x="484" y="156" class="tiny">no keys in the pack</text>
+
+  <rect class="accent" x="688" y="84" width="264" height="88" rx="0"/>
+  <text x="704" y="118" class="t" font-size="14">Recording proxy</text>
+  <text x="704" y="140" class="s">tools/list · tools/call · hold</text>
+  <text x="704" y="156" class="tiny">events.jsonl</text>
+
+  <rect class="box" x="688" y="212" width="264" height="72" rx="0"/>
+  <text x="704" y="244" class="t" font-size="14">MCP tools</text>
+  <text x="704" y="266" class="s">tickets · refunds · email · KB</text>
+
+  <rect class="accent" x="228" y="212" width="420" height="72" rx="0"/>
+  <text x="244" y="244" class="t" font-size="14">Sealed pack</text>
+  <text x="244" y="266" class="s">SHA-256 of every file in manifest.json · optional HMAC overlay</text>
+
+  <rect class="box" x="28" y="212" width="160" height="72" rx="0"/>
+  <text x="44" y="244" class="t" font-size="14">Desk / CI</text>
+  <text x="44" y="266" class="s">tickets · policy · verify</text>
+
+  <path d="M188 128 H228" stroke="#1c1914" fill="none"/>
+  <path d="M428 128 H468" stroke="#1c1914" fill="none"/>
+  <path d="M648 128 H688" stroke="#1c1914" fill="none"/>
+  <path d="M820 172 V212" stroke="#9c3b16" fill="none"/>
+  <path d="M688 248 H648" stroke="#1c1914" fill="none"/>
+  <path d="M228 248 H188" stroke="#1c1914" fill="none"/>
+
+  <text x="28" y="328" class="h">Then two questions, in order</text>
+  <text x="28" y="356" class="t" font-size="14">1. Reachability replay  no model.</text>
+  <text x="28" y="376" class="s">The exact calls that would carry the attack out. If a tool refuses here, the attack is already dead below the model.</text>
+  <text x="28" y="400" class="t" font-size="14">2. Agent trials  a model, N times.</text>
+  <text x="520" y="400" class="s">Rates with a 95% Wilson interval. A model-only refuse is not a pass.</text>
+</svg>
