@@ -1,0 +1,2 @@
+id,company,website,segment,agent_description,write_actions,untrusted_inputs,contact_name,contact_role,contact_channel,source,personal_hook,qualifies,message_variant,sent_date,followup1_date,followup2_date,replied,interview_date,status,notes
+P-000,EXAMPLE ROW - delete me,https://example.com,support,"Support agent that resolves tickets in Zendesk","issue_refund, update_plan","customer tickets, email",Jane Doe,CTO,email,YC directory,"Launch post on 2026-09-30 mentions auto-refunds under $50",y,A,,,,,,researching,

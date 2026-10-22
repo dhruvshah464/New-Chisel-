@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: uv sync --frozen --extra dev --extra model --extra cloud
+      - name: Test (offline; no API key is used)
+        run: uv run pytest -q
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: The action on the fixed demo (replay only)
+        id: fixed
+        uses: ./
+        with:
+          variant: fixed
+          replay-only: "true"
+          artifact-name: aisec-evidence-fixed
+      - name: The action on the vulnerable demo (replay only; expected to fail)
+        id: vulnerable
+        continue-on-error: true
+        uses: ./
+        with:
+          variant: vulnerable
+          replay-only: "true"
+          artifact-name: aisec-evidence-vulnerable
+      - name: Check the action's outputs
+        env:
+          FIXED_CODE: ${{ steps.fixed.outputs.exit-code }}
+          FIXED_DIR: ${{ steps.fixed.outputs.run-dir }}
+          FIXED_DIGEST: ${{ steps.fixed.outputs.manifest-sha256 }}
+          VULNERABLE_CODE: ${{ steps.vulnerable.outputs.exit-code }}
+          VULNERABLE_OUTCOME: ${{ steps.vulnerable.outcome }}
+        run: |
+          test "$FIXED_CODE" = 0
+          test -f "$FIXED_DIR/manifest.json"
+          test "${#FIXED_DIGEST}" = 64
+          test "$VULNERABLE_CODE" = 1
+          test "$VULNERABLE_OUTCOME" = failure

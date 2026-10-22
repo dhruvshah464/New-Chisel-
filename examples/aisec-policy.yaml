@@ -1,0 +1,12 @@
+# New Chisel evidence policy. A model-only resist is not a pass you can take to a buyer.
+require_signed: false
+model_only_resist: fail   # fail | warn | ignore
+inconclusive: fail
+failed: fail
+regressions: fail
+tool_drift: fail          # fail if a tool description or schema changed vs --baseline / pin
+max_age_days: 90          # 0 disables. A last-quarter model eval is not current evidence.
+stale: fail
+authorization: fail       # fail a command-target pack whose hashed warrant does not cover started_at
+shadow_tools: fail        # fail if a tool was called that is not in the sealed inventory
+# baseline: .aisec/baseline-pack  # or: aisec pin <run>

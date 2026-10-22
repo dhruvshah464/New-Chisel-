@@ -1,0 +1,27 @@
+aisec
+Copyright 2026 Dhruv Shah
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Portions of this product are adapted from earlier work by the same author:
+
+  OpenTrust / mcpguardbench (https://github.com/dhruvshah464/OpenTrust)
+    - the per-trial sandbox, scenario loader, success oracles and deterministic
+      stub replay (aisec/sandbox.py, aisec/scenario.py, aisec/checks.py,
+      aisec/targets/replay.py)
+    - the Anthropic tool-use loop (examples/support-agent/agent.py)
+
+  Sentinel (https://github.com/dhruvshah464/Sentinel)
+    - the intercepting MCP stdio proxy and its "wrap -- <command>" shape
+      (aisec/proxy.py)
+
+  OpenTruth (https://github.com/dhruvshah464/OpenTruth)
+    - the sealed, write-once evidence store and its manifest verification
+      (aisec/evidence.py)
+    - the verdict discipline that INCONCLUSIVE is never a pass, and the
+      exit-code contract (aisec/verdicts.py)
+    - the composite GitHub Action layout (action.yml)
+
+OpenTruth is distributed under the Apache License, Version 2.0. OpenTrust and
+Sentinel were unlicensed personal repositories by the same author; the adapted
+portions are relicensed here under the Apache License, Version 2.0.

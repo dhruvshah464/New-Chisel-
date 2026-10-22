@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "support_desk": {
+      "command": "python",
+      "args": ["../support-agent/servers/support_desk.py"],
+      "cwd": ".",
+      "env": {
+        "SUPPORT_DESK_VARIANT": "fixed",
+        "SUPPORT_DESK_TICKET": "T-1042"
+      }
+    },
+    "knowledge_base": {
+      "command": "python",
+      "args": ["../support-agent/servers/knowledge_base.py"],
+      "cwd": "."
+    }
+  }
+}

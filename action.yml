@@ -1,0 +1,203 @@
+name: aisec agent security check
+description: Run attack scenarios against an AI agent through a recording MCP proxy, seal the evidence pack, and upload it.
+author: Dhruv Shah
+branding:
+  icon: shield
+  color: gray-dark
+inputs:
+  target:
+    description: demo (the built-in support agent) or command (your own agent, described by target-config)
+    required: false
+    default: demo
+  target-config:
+    description: For target command, the target config (MCP config, agent command, signed authorization), relative to the workspace
+    required: false
+    default: ""
+  variant:
+    description: For target demo, vulnerable or fixed
+    required: false
+    default: fixed
+  scenarios:
+    description: Scenario file or directory, relative to the workspace. Required for target command; for target demo, empty uses the demo scenarios that ship with aisec.
+    required: false
+    default: ""
+  repeat:
+    description: Agent trials per scenario
+    required: false
+    default: "3"
+  fail-on:
+    description: Lowest severity whose FAILED or INCONCLUSIVE attack fails the job (low, medium, high, critical)
+    required: false
+    default: low
+  replay-only:
+    description: Use the scripted replay instead of the agent. Needs no model or API key, and shows what the tools allow, not what the agent does.
+    required: false
+    default: "false"
+  timeout:
+    description: Seconds per agent trial
+    required: false
+    default: "300"
+  artifact-name:
+    description: Name of the uploaded evidence-pack artifact
+    required: false
+    default: aisec-evidence
+  python-version:
+    description: Python used to install aisec
+    required: false
+    default: "3.12"
+  aisec-url:
+    description: Control-plane origin for uploading the sealed pack (optional)
+    required: false
+    default: ""
+  aisec-token:
+    description: Org API token for upload (optional; prefer secrets)
+    required: false
+    default: ""
+  aisec-project:
+    description: Control-plane project id for upload (optional)
+    required: false
+    default: ""
+  policy:
+    description: Optional aisec-policy.yaml. After the run, aisec policy fails the job on model-only resists or (with baseline) regressions.
+    required: false
+    default: ""
+  baseline:
+    description: Optional path to a previous sealed pack. Used with policy to fail on RESISTED → FAILED.
+    required: false
+    default: ""
+  mutate:
+    description: Extra deterministic phrasings per attack (0 is off)
+    required: false
+    default: "0"
+outputs:
+  exit-code:
+    description: "aisec's exit code: 0 pass, 1 an attack FAILED, 2 inconclusive or a usage error, 3 the pack does not verify"
+    value: ${{ steps.run.outputs.exit-code }}
+  summary:
+    description: aisec's one-line reason for the exit code
+    value: ${{ steps.run.outputs.summary }}
+  run-id:
+    description: The sealed run's id
+    value: ${{ steps.run.outputs.run-id }}
+  run-dir:
+    description: Absolute path of the sealed evidence pack
+    value: ${{ steps.run.outputs.run-dir }}
+  manifest-sha256:
+    description: SHA-256 of the pack's manifest.json, which pins every other file
+    value: ${{ steps.run.outputs.manifest-sha256 }}
+runs:
+  using: composite
+  steps:
+    - name: Set up uv
+      uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      with:
+        python-version: ${{ inputs.python-version }}
+        enable-cache: "false"
+    - name: Install aisec from the lockfile
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      # Frozen lockfile + hashes. Editable so the demo target finds examples/ next to the package.
+      run: |
+        cd "${ACTION_PATH}"
+        uv sync --frozen --extra model
+        echo "${ACTION_PATH}/.venv/bin" >> "$GITHUB_PATH"
+    - name: Run aisec
+      id: run
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_TARGET_CONFIG: ${{ inputs.target-config }}
+        INPUT_VARIANT: ${{ inputs.variant }}
+        INPUT_SCENARIOS: ${{ inputs.scenarios }}
+        INPUT_REPEAT: ${{ inputs.repeat }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REPLAY_ONLY: ${{ inputs.replay-only }}
+        INPUT_TIMEOUT: ${{ inputs.timeout }}
+        INPUT_MUTATE: ${{ inputs.mutate }}
+      run: |
+        if [ "$INPUT_TARGET" != "demo" ] && [ -z "$INPUT_SCENARIOS" ]; then
+          echo "summary=target $INPUT_TARGET needs the scenarios input: the scenario files written for this agent" >> "$GITHUB_OUTPUT"
+          echo "exit-code=2" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        runs_root="$(mktemp -d "${RUNNER_TEMP}/aisec-runs.XXXXXX")"
+        log="${runs_root}.log"
+        args=(run --target "$INPUT_TARGET" --scenarios "${INPUT_SCENARIOS:-${ACTION_PATH}/scenarios/support-agent}")
+        args+=(--fail-on "$INPUT_FAIL_ON" --timeout "$INPUT_TIMEOUT" --runs-root "$runs_root")
+        if [ "$INPUT_TARGET" = "demo" ]; then
+          args+=(--variant "$INPUT_VARIANT")
+        fi
+        if [ -n "$INPUT_TARGET_CONFIG" ]; then
+          args+=(--target-config "$INPUT_TARGET_CONFIG")
+        fi
+        if [ "$INPUT_REPLAY_ONLY" = "true" ]; then
+          args+=(--replay-only)
+        else
+          args+=(--repeat "$INPUT_REPEAT")
+        fi
+        if [ "${INPUT_MUTATE:-0}" != "0" ]; then
+          args+=(--mutate "$INPUT_MUTATE")
+        fi
+
+        set +e
+        aisec "${args[@]}" | tee "$log"
+        code=${PIPESTATUS[0]}
+        set -e
+
+        run_dir="$(find "$runs_root" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+        if [ -n "$run_dir" ] && [ -f "$run_dir/manifest.json" ]; then
+          if ! aisec verify "$run_dir"; then
+            code=3
+          fi
+          echo "run-dir=$run_dir" >> "$GITHUB_OUTPUT"
+          echo "run-id=$(basename "$run_dir")" >> "$GITHUB_OUTPUT"
+          digest="$(python -c 'import hashlib, sys; print(hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest())' "$run_dir/manifest.json")"
+          echo "manifest-sha256=$digest" >> "$GITHUB_OUTPUT"
+          {
+            cat "$run_dir/report.md"
+            echo
+            echo "Evidence pack \`$(basename "$run_dir")\`, manifest sha256 \`$digest\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+        summary="$(grep -E '^Exit [0-9]+: ' "$log" | tail -n 1 || true)"
+        echo "summary=${summary:-aisec exited $code before sealing an evidence pack}" >> "$GITHUB_OUTPUT"
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+    - name: Upload the evidence pack
+      if: ${{ always() && steps.run.outputs.run-dir != '' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.run.outputs.run-dir }}
+        if-no-files-found: error
+    - name: Upload the pack to the aisec control plane
+      if: ${{ always() && steps.run.outputs.run-dir != '' && inputs.aisec-url != '' && inputs.aisec-token != '' }}
+      shell: bash
+      env:
+        AISEC_URL: ${{ inputs.aisec-url }}
+        AISEC_TOKEN: ${{ inputs.aisec-token }}
+        AISEC_PROJECT: ${{ inputs.aisec-project }}
+        RUN_DIR: ${{ steps.run.outputs.run-dir }}
+      run: aisec upload "$RUN_DIR" --url "$AISEC_URL" --token "$AISEC_TOKEN" --project "$AISEC_PROJECT"
+    - name: Evidence policy
+      if: ${{ always() && steps.run.outputs.run-dir != '' && (inputs.policy != '' || inputs.baseline != '') }}
+      shell: bash
+      env:
+        RUN_DIR: ${{ steps.run.outputs.run-dir }}
+        POLICY: ${{ inputs.policy }}
+        BASELINE: ${{ inputs.baseline }}
+      run: |
+        args=(policy "$RUN_DIR")
+        if [ -n "$POLICY" ]; then args+=(--policy "$POLICY"); fi
+        if [ -n "$BASELINE" ]; then args+=(--baseline "$BASELINE"); fi
+        aisec "${args[@]}"
+    - name: Fail on findings
+      if: ${{ always() && steps.run.outcome == 'success' && steps.run.outputs.exit-code != '0' }}
+      shell: bash
+      env:
+        CODE: ${{ steps.run.outputs.exit-code }}
+        SUMMARY: ${{ steps.run.outputs.summary }}
+      run: |
+        echo "::error title=aisec::${SUMMARY}"
+        exit "${CODE:-2}"

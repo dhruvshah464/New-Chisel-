@@ -1,0 +1,29 @@
+# The machine-readable copy of a signed authorization (template: validation/05-pilot-offer.md).
+# aisec refuses to run unless every required field is present, the environment is not
+# production, the data is synthetic or sanitized, the run is inside the window, and every
+# server in the MCP config is listed under scope.servers. Each evidence pack gets a verbatim
+# copy, and target.json records its SHA-256.
+#
+# This example covers the synthetic demo servers only; every name and number in it is made up.
+client: Acme Support Inc. (example)
+assessor: aisec (example)
+authorized_by:
+  name: Jordan Example
+  title: VP Engineering
+signed_on: 2026-10-09
+signed_copy_sha256: null          # SHA-256 of the countersigned PDF, once there is one
+scope:
+  agent: demo support agent (examples/support-agent/agent.py)
+  environment: local sandbox with synthetic data
+  servers: [support_desk, knowledge_base]
+  # Tools that reach real systems (payments, email, deployments). A held call is recorded and
+  # answered by aisec, never forwarded; it counts as landed, since the tool's own checks never
+  # run. The demo's tools only write to a synthetic sink, so none are held here.
+  held_tools: []
+window:
+  start: 2026-10-01T00:00:00Z
+  end: 2027-03-31T23:59:59Z
+data: synthetic
+contacts:
+  technical: Jordan Example, +1-202-555-0100
+  emergency_stop: Jordan Example, +1-202-555-0100

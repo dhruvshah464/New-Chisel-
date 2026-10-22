@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Chisel — verify a pack</title>
+  <link rel="icon" href="/static/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="mast">
+    <div class="brand">
+      <img src="/static/mark.svg" alt="">
+      <div>
+        <span class="name">New Chisel</span>
+        <span class="sub">Independent evidence</span>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Public">
+      <a href="/">Desk</a>
+    </nav>
+    <div class="session">
+      <span id="who">No account required</span>
+    </div>
+  </header>
+  <main class="desk split is-on">
+    <aside class="col">
+      <p class="kicker">Public verifier</p>
+      <h1>Hash the pack yourself.</h1>
+      <p class="lede">A model vendor cannot be the notary for its own model. This page recomputes SHA-256 of every file against <code>manifest.json</code>. It does not run the agent and does not need API keys.</p>
+    </aside>
+    <article class="col sheet">
+      <div class="drop">
+        <strong>Files from a pack folder</strong>
+        <p class="lede">Hashes stay in this browser.</p>
+        <input id="files" type="file" multiple>
+        <div class="actions"><button id="hash-files" class="solid" type="button">Hash here</button></div>
+      </div>
+      <div class="drop">
+        <strong>Or a .tar.gz</strong>
+        <p class="lede">Checked on this server and discarded. Not stored.</p>
+        <input id="tarball" type="file" accept=".gz,.tgz,application/gzip">
+        <div class="actions"><button id="upload" type="button">Check and discard</button></div>
+      </div>
+      <pre class="note" id="out">Waiting.</pre>
+    </article>
+  </main>
+  <script src="/static/verify.js"></script>
+</body>
+</html>

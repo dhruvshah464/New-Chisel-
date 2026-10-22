@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Chisel — verify a pack in the browser</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 40px auto; color: #111; padding: 0 20px; }
+  h1 { font-size: 24px; }
+  pre { background: #f4f4f4; padding: 12px; overflow: auto; }
+  .muted { color: #555; }
+</style>
+</head>
+<body>
+<p><strong>New Chisel</strong> · Independent Evidence</p>
+<h1>Verify a sealed pack without installing anything</h1>
+<p>Select every file in an evidence pack folder (including <code>manifest.json</code>). This page hashes them in your browser with SHA-256. Nothing is uploaded. A model company cannot be the notary for this check.</p>
+<p><input id="files" type="file" multiple></p>
+<p><button id="go">Verify</button></p>
+<pre id="out">Waiting.</pre>
+<p class="muted"><a href="index.html">Back</a></p>
+<script>
+const UNTRACKED = new Set(["signature.json", "certificate.html", "attestation.json"]);
+async function sha256Hex(buffer) {
+  const hash = await crypto.subtle.digest("SHA-256", buffer);
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function findFile(byName, rel) {
+  return byName[rel] || byName[rel.split("/").pop()];
+}
+document.getElementById("go").onclick = async () => {
+  const out = document.getElementById("out");
+  try {
+    const files = [...(document.getElementById("files").files || [])];
+    if (!files.length) { out.textContent = "Select the pack files."; return; }
+    const byName = {};
+    for (const file of files) byName[file.name] = file;
+    if (!byName["manifest.json"]) { out.textContent = "manifest.json is required."; return; }
+    const manifest = JSON.parse(await byName["manifest.json"].text());
+    const expected = manifest.files || {};
+    const missing = [];
+    const changed = [];
+    for (const [rel, meta] of Object.entries(expected)) {
+      const file = findFile(byName, rel);
+      if (!file) { missing.push(rel); continue; }
+      const digest = await sha256Hex(await file.arrayBuffer());
+      if (digest !== meta.sha256) changed.push(rel);
+    }
+    const extras = Object.keys(byName).filter((name) => {
+      if (name === "manifest.json" || UNTRACKED.has(name)) return false;
+      return !(name in expected) && !Object.keys(expected).some((rel) => rel === name || rel.endsWith("/" + name));
+    });
+    out.textContent = JSON.stringify({
+      ok: missing.length === 0 && changed.length === 0,
+      issuer: "New Chisel Independent Evidence — not issued by a model vendor",
+      sealed_at: manifest.sealed_at,
+      missing,
+      changed,
+      extra: extras
+    }, null, 2);
+  } catch (err) {
+    out.textContent = String(err);
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{
+  "aisec_version": "0.0.1",
+  "created_at": "2026-10-09T11:27:39+00:00",
+  "files": {
+    "checks.jsonl": {
+      "bytes": 11135,
+      "sha256": "a915e6b4826abaf067faddc2f6fd03115e5eaa4ad9f89cea9a0e8b53626b8322"
+    },
+    "events.jsonl": {
+      "bytes": 52298,
+      "sha256": "9929fd69cf5570dedd39fe926529e30a1b6bcf30f1fffff368c7f132212f115e"
+    },
+    "report.html": {
+      "bytes": 22213,
+      "sha256": "f8ae1dc3eff2496b531577d9b3a337187b968ad57158e3cc60b457aa2fb13e3d"
+    },
+    "report.md": {
+      "bytes": 15366,
+      "sha256": "4e4732bd251a6682c40709243829433a7b79c1ec4c83c9865d87de7d47e876d2"
+    },
+    "scenarios/cross_customer_lookup.yaml": {
+      "bytes": 1122,
+      "sha256": "2d6afb1693b765a634d54447a64dee6d4bf2e68578e598d5b3c8c4579fe50d09"
+    },
+    "scenarios/excessive_refund.yaml": {
+      "bytes": 1100,
+      "sha256": "c2681dcd26d8ebf9c7c6f9c2db8a7dc32cc0218f64a5c92446ec67fe876e5e4f"
+    },
+    "scenarios/legit_refund_in_policy.yaml": {
+      "bytes": 674,
+      "sha256": "db94247186cce4a818c589872faa85bb79680a9cd0fca4b1e132d4325a5b129c"
+    },
+    "scenarios/legit_status_check.yaml": {
+      "bytes": 728,
+      "sha256": "dae90fc833614d8f8016664bd44e0c85ac453747661b3ecf21c21edd5943c13c"
+    },
+    "scenarios/pii_exfil_ticket.yaml": {
+      "bytes": 1347,
+      "sha256": "1454f9b3307e44d19640df3895af0fdcae4ba22b6b3a9e1f50adc9d7a44dd445"
+    },
+    "scenarios/poisoned_kb_tool.yaml": {
+      "bytes": 1320,
+      "sha256": "ecf8bcc76c11ba92063e9db89fe7772cd04f682ce3bc58d5a1d9f8b52fcd63ba"
+    },
+    "scenarios/refund_injection_ticket.yaml": {
+      "bytes": 1115,
+      "sha256": "6e1d454da0eb7cf425da144e8f3b61b619d82645d86685f358371f1b2c9c35ac"
+    },
+    "scenarios/rug_pull_kb.yaml": {
+      "bytes": 1482,
+      "sha256": "d152d49fd06f4044ff9aec91471f010469c34acbb3b527c19098c9ccd8decf9d"
+    },
+    "sink.jsonl": {
+      "bytes": 2244,
+      "sha256": "7fbfd32f9d66f4f6e90bd7286abef2f19a4f6852320d7c1847fcfb5b8a651bcc"
+    },
+    "target.json": {
+      "bytes": 5783,
+      "sha256": "d633fbd64d124e214f5151a4779bb8e56dd622650c96c291b1021b9b0c775424"
+    },
+    "transcripts.jsonl": {
+      "bytes": 18781,
+      "sha256": "41119ab03111cd0a54267ba66e082a4f00248f02208065209f1ecea0d4c1378d"
+    },
+    "verdict.json": {
+      "bytes": 25010,
+      "sha256": "80e2abff34184fed127666c9e45beeb13f8bcf423bdeacb78fd031e58e816a2b"
+    }
+  },
+  "run_id": "20261009T112739Z-4e2e6b",
+  "sealed": true,
+  "sealed_at": "2026-10-09T11:28:27+00:00"
+}

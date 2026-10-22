@@ -1,0 +1,1 @@
+"""Hosted control plane: ingest sealed packs, open finding tickets, never run the agent."""

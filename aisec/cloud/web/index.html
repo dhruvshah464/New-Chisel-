@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Chisel — Independent Evidence</title>
+  <link rel="icon" href="/static/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="gate" class="gate">
+    <section class="gate-copy">
+      <div>
+        <p class="kicker">New Chisel</p>
+        <h1>Independent evidence for the agent you actually run.</h1>
+        <p class="lede">This desk stores sealed packs and turns failed scenarios into tickets. It never runs the agent and never sees model keys. A model vendor cannot be the notary for this record.</p>
+      </div>
+      <p>Local control plane · packs stay on this machine</p>
+    </section>
+    <section class="gate-form">
+      <p class="kicker">Open the desk</p>
+      <div class="stack">
+        <button id="local-unlock" class="solid" type="button">Open on this computer</button>
+        <button id="bootstrap" type="button">Bootstrap this machine</button>
+        <div class="or">or paste an owner token</div>
+        <label for="token">Owner token</label>
+        <input id="token" type="password" autocomplete="off" placeholder="aisec_…">
+        <button id="save-token" type="button">Unlock</button>
+        <p class="status" id="gate-status"></p>
+      </div>
+    </section>
+  </div>
+
+  <div id="app" class="hidden">
+    <header class="mast">
+      <div class="brand">
+        <img src="/static/mark.svg" alt="">
+        <div>
+          <span class="name">New Chisel</span>
+          <span class="sub">Independent evidence</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Desk">
+        <button type="button" data-view="inbox" aria-current="page">Inbox</button>
+        <button type="button" data-view="runs">Runs</button>
+        <button type="button" data-view="verify">Verify</button>
+        <button type="button" data-view="ledger">Ledger</button>
+      </nav>
+      <div class="session">
+        <select id="project" aria-label="Project"></select>
+        <span id="who"></span>
+        <button id="sign-out" class="ghost" type="button">Lock</button>
+      </div>
+    </header>
+
+    <section id="view-inbox" class="desk is-on" data-view="inbox">
+      <aside class="col">
+        <p class="kicker">Findings</p>
+        <div class="filter" id="finding-filter">
+          <button type="button" data-status="" class="is-on">All</button>
+          <button type="button" data-status="open">Open</button>
+          <button type="button" data-status="closed">Closed</button>
+        </div>
+        <ul class="list" id="findings"></ul>
+        <p class="empty" id="findings-empty">No tickets in this project. Upload a signed pack from a failed run.</p>
+      </aside>
+      <article class="col sheet">
+        <p class="kicker">Selected</p>
+        <h2 id="finding-title">Select a finding</h2>
+        <dl class="dl" id="finding-meta"></dl>
+        <pre class="note" id="finding-body">A finding is one scenario that failed, stalled, or blocked a benign control. Retest does not run here.</pre>
+        <div class="actions">
+          <input type="hidden" id="finding-id">
+          <select id="new-status" aria-label="Status">
+            <option>open</option>
+            <option>in_progress</option>
+            <option>retesting</option>
+            <option>resolved</option>
+            <option>accepted_risk</option>
+            <option>wontfix</option>
+          </select>
+          <input id="reason" placeholder="Reason (accepted risk)">
+          <button id="set-status" type="button">Set status</button>
+          <input id="assignee" placeholder="Assignee">
+          <button id="set-assignee" type="button">Assign</button>
+          <button id="retest" type="button">Mark retesting</button>
+          <input id="comment" placeholder="Note on this ticket">
+          <button id="add-comment" type="button">Add note</button>
+          <input id="gh-repo" placeholder="org/repo for GitHub">
+          <button id="export" type="button">Export issue</button>
+        </div>
+        <p class="status" id="status"></p>
+        <hr class="rule">
+        <p class="kicker">History</p>
+        <ul class="timeline" id="finding-events"></ul>
+      </article>
+      <aside class="col">
+        <p class="kicker">Sealed evidence</p>
+        <div class="tabs" id="evidence-tabs">
+          <button type="button" data-kind="report" aria-current="true">Report</button>
+          <button type="button" data-kind="certificate">Certificate</button>
+          <button type="button" data-kind="attestation">Attestation</button>
+        </div>
+        <iframe class="frame" id="report" title="Sealed HTML report"></iframe>
+        <pre class="note hidden" id="attest-view"></pre>
+      </aside>
+    </section>
+
+    <section id="view-runs" class="desk" data-view="runs">
+      <aside class="col">
+        <p class="kicker">Ingest</p>
+        <h2>Signed packs</h2>
+        <p class="lede">Runs happen on a laptop or in CI. Drop a signed <code>.tar.gz</code> here. Unsigned packs are refused.</p>
+        <div class="drop">
+          <strong>Upload a sealed pack</strong>
+          <p class="lede">HMAC signature is checked against this desk’s key. The agent is not executed.</p>
+          <input id="pack-file" type="file" accept=".gz,.tgz,application/gzip">
+          <div class="actions">
+            <button id="upload-pack" class="solid" type="button">Ingest</button>
+          </div>
+        </div>
+        <p class="kicker">Regression vs last two runs</p>
+        <div class="baseline" id="baseline">
+          <p class="empty">Need two uploaded packs in this project.</p>
+        </div>
+      </aside>
+      <article class="col sheet">
+        <p class="kicker">Recent runs</p>
+        <table class="data">
+          <thead>
+            <tr><th>Run</th><th>Digest</th><th>Exit</th><th></th></tr>
+          </thead>
+          <tbody id="runs"></tbody>
+        </table>
+        <p class="empty" id="runs-empty">No packs ingested yet.</p>
+        <hr class="rule">
+        <div class="tabs" id="run-tabs">
+          <button type="button" data-kind="report" aria-current="true">Report</button>
+          <button type="button" data-kind="certificate">Certificate</button>
+          <button type="button" data-kind="attestation">Attestation</button>
+        </div>
+        <iframe class="frame" id="run-frame" title="Run evidence"></iframe>
+        <pre class="note hidden" id="run-attest"></pre>
+      </article>
+    </section>
+
+    <section id="view-verify" class="desk" data-view="verify">
+      <aside class="col">
+        <p class="kicker">Notary</p>
+        <h2>Hash-check a pack</h2>
+        <p class="lede">Verification is not proprietary. Recompute SHA-256 of every file in <code>manifest.json</code>. Nothing is stored.</p>
+        <p><a href="/verify">Open the public verifier</a> — no account.</p>
+      </aside>
+      <article class="col sheet">
+        <div class="drop">
+          <strong>Files from a pack folder</strong>
+          <p class="lede">Hashes stay in this browser.</p>
+          <input id="files" type="file" multiple>
+          <div class="actions"><button id="hash-files" class="solid" type="button">Hash here</button></div>
+        </div>
+        <div class="drop">
+          <strong>Or a .tar.gz</strong>
+          <p class="lede">Checked on this server and discarded.</p>
+          <input id="tarball" type="file" accept=".gz,.tgz,application/gzip">
+          <div class="actions"><button id="upload" type="button">Check and discard</button></div>
+        </div>
+        <pre class="note" id="out">Waiting.</pre>
+      </article>
+    </section>
+
+    <section id="view-ledger" class="desk" data-view="ledger">
+      <aside class="col">
+        <p class="kicker">Audit</p>
+        <h2>What this desk did</h2>
+        <p class="lede">Uploads, ticket changes, token minting. This is not a production action log of the agent.</p>
+      </aside>
+      <article class="col sheet">
+        <table class="data">
+          <thead>
+            <tr><th>When</th><th>Actor</th><th>Action</th><th>Detail</th></tr>
+          </thead>
+          <tbody id="audit"></tbody>
+        </table>
+      </article>
+    </section>
+  </div>
+  <script src="/static/app.js"></script>
+  <script src="/static/verify.js"></script>
+</body>
+</html>
