@@ -1,58 +1,207 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420" role="img" aria-label="How New Chisel sits between the agent and its tools">
-  <rect width="980" height="420" fill="#f1eee6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 560" width="100%" height="100%" role="img" aria-label="New Chisel Architecture: How aisec sits between the agent and its tools">
+  <defs>
+    <!-- Matte Brushed Copper / Bronze Gradient -->
+    <linearGradient id="arch-copper" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5A3318" />
+      <stop offset="35%" stop-color="#8F552E" />
+      <stop offset="75%" stop-color="#C8824F" />
+      <stop offset="100%" stop-color="#E5A26D" />
+    </linearGradient>
+
+    <!-- Titanium Gradient -->
+    <linearGradient id="arch-titanium" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#686C6E" />
+      <stop offset="45%" stop-color="#94999C" />
+      <stop offset="85%" stop-color="#C9CDCF" />
+      <stop offset="100%" stop-color="#E2E5E7" />
+    </linearGradient>
+
+    <!-- Card Background Gradient -->
+    <linearGradient id="card-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#faf8f2" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="soft-shadow" x="-5%" y="-10%" width="110%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1c1914" flood-opacity="0.08" />
+    </filter>
+
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8F552E" />
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94999C" />
+    </marker>
+  </defs>
+
   <style>
-    .box { fill: #faf8f2; stroke: #1c1914; stroke-width: 1.25; }
-    .accent { fill: #faf8f2; stroke: #9c3b16; stroke-width: 1.5; }
-    .t { font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif; fill: #1c1914; }
-    .s { font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif; fill: #6b6559; font-size: 12px; }
-    .h { font-family: "Palatino Linotype", Palatino, "Times New Roman", serif; fill: #1c1914; font-size: 16px; }
-    .tiny { font-family: "SF Mono", Menlo, Consolas, monospace; fill: #9c3b16; font-size: 11px; }
+    .canvas { fill: #f3efe6; stroke: #d8d0c2; stroke-width: 1.5; }
+    .card { fill: url(#card-bg); stroke: #ded7c8; stroke-width: 1.25; filter: url(#soft-shadow); }
+    .card-accent { fill: url(#card-bg); stroke: #8F552E; stroke-width: 1.5; filter: url(#soft-shadow); }
+    .card-sealed { fill: url(#card-bg); stroke: #3d5344; stroke-width: 1.5; filter: url(#soft-shadow); }
+    .card-titanium { fill: url(#card-bg); stroke: #7b8285; stroke-width: 1.25; filter: url(#soft-shadow); }
+    
+    .serif-title { font-family: "Palatino Linotype", Palatino, "Iowan Old Style", "Times New Roman", serif; font-weight: 600; fill: #1c1914; }
+    .sans { font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+    
+    .badge-copper { fill: #f5eae1; stroke: #c8824f; stroke-width: 1; }
+    .badge-copper-text { font-size: 10px; font-weight: 700; fill: #8F552E; letter-spacing: 0.08em; }
+    
+    .badge-titanium { fill: #eef1f3; stroke: #94999c; stroke-width: 1; }
+    .badge-titanium-text { font-size: 10px; font-weight: 700; fill: #4a5053; letter-spacing: 0.08em; }
+    
+    .badge-green { fill: #eaf1eb; stroke: #3d5344; stroke-width: 1; }
+    .badge-green-text { font-size: 10px; font-weight: 700; fill: #2c4232; letter-spacing: 0.08em; }
+    
+    .code-pill { fill: #ede8dc; rx: 4; }
+    .code-pill-text { font-size: 11px; fill: #5A3318; font-weight: 600; }
   </style>
-  <text x="28" y="36" class="h">One trial, from the outside</text>
-  <text x="28" y="58" class="s">The agents code does not change. aisec rewrites the MCP config so every server is launched behind the recording proxy.</text>
 
-  <rect class="box" x="28" y="84" width="160" height="88" rx="0"/>
-  <text x="44" y="118" class="t" font-size="14">You</text>
-  <text x="44" y="140" class="s">scenarios + warrant</text>
-  <text x="44" y="156" class="tiny">aisec run</text>
+  <!-- Background Canvas -->
+  <rect class="canvas" x="1" y="1" width="1038" height="558" rx="16" />
 
-  <rect class="accent" x="228" y="84" width="200" height="88" rx="0"/>
-  <text x="244" y="118" class="t" font-size="14">aisec runner</text>
-  <text x="244" y="140" class="s">sandbox · replay · trials</text>
-  <text x="244" y="156" class="tiny">success_check on the log</text>
+  <!-- ================= HEADER ================= -->
+  <g transform="translate(36, 32)">
+    <rect class="badge-copper" x="0" y="0" width="186" height="20" rx="10" />
+    <text class="sans badge-copper-text" x="93" y="14" text-anchor="middle">NEW CHISEL ARCHITECTURE</text>
+    
+    <text class="serif-title" x="0" y="46" font-size="22">One trial, from the outside</text>
+    <text class="sans" x="0" y="68" font-size="13" fill="#6b6559">
+      The agent's code does not change. <tspan font-family="'SF Mono', Menlo, monospace" font-size="12" fill="#1c1914">aisec</tspan> rewrites the MCP config so every server is launched behind the recording proxy.
+    </text>
+  </g>
 
-  <rect class="box" x="468" y="84" width="180" height="88" rx="0"/>
-  <text x="484" y="118" class="t" font-size="14">Agent</text>
-  <text x="484" y="140" class="s">model or scripted replay</text>
-  <text x="484" y="156" class="tiny">no keys in the pack</text>
+  <!-- ================= PIPELINE TOP ROW ================= -->
 
-  <rect class="accent" x="688" y="84" width="264" height="88" rx="0"/>
-  <text x="704" y="118" class="t" font-size="14">Recording proxy</text>
-  <text x="704" y="140" class="s">tools/list · tools/call · hold</text>
-  <text x="704" y="156" class="tiny">events.jsonl</text>
+  <!-- Node 1: Operator / You -->
+  <g transform="translate(36, 120)">
+    <rect class="card" x="0" y="0" width="200" height="98" rx="8" />
+    <rect class="badge-titanium" x="12" y="12" width="70" height="18" rx="4" />
+    <text class="sans badge-titanium-text" x="47" y="25" text-anchor="middle">OPERATOR</text>
+    <text class="serif-title" x="12" y="48" font-size="15">You</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">scenarios + warrant</text>
+    <rect class="code-pill" x="12" y="73" width="92" height="17" />
+    <text class="mono code-pill-text" x="18" y="86">aisec run</text>
+  </g>
 
-  <rect class="box" x="688" y="212" width="264" height="72" rx="0"/>
-  <text x="704" y="244" class="t" font-size="14">MCP tools</text>
-  <text x="704" y="266" class="s">tickets · refunds · email · KB</text>
+  <!-- Connector 1 -> 2 -->
+  <path d="M 236 169 L 268 169" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
 
-  <rect class="accent" x="228" y="212" width="420" height="72" rx="0"/>
-  <text x="244" y="244" class="t" font-size="14">Sealed pack</text>
-  <text x="244" y="266" class="s">SHA-256 of every file in manifest.json · optional HMAC overlay</text>
+  <!-- Node 2: Runner -->
+  <g transform="translate(276, 120)">
+    <rect class="card-accent" x="0" y="0" width="210" height="98" rx="8" />
+    <rect class="badge-copper" x="12" y="12" width="96" height="18" rx="4" />
+    <text class="sans badge-copper-text" x="60" y="25" text-anchor="middle">ORCHESTRATOR</text>
+    <text class="serif-title" x="12" y="48" font-size="15">aisec runner</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">sandbox â€¢ replay â€¢ trials</text>
+    <rect class="code-pill" x="12" y="73" width="168" height="17" />
+    <text class="mono code-pill-text" x="18" y="86">success_check on log</text>
+  </g>
 
-  <rect class="box" x="28" y="212" width="160" height="72" rx="0"/>
-  <text x="44" y="244" class="t" font-size="14">Desk / CI</text>
-  <text x="44" y="266" class="s">tickets · policy · verify</text>
+  <!-- Connector 2 -> 3 -->
+  <path d="M 486 169 L 518 169" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
 
-  <path d="M188 128 H228" stroke="#1c1914" fill="none"/>
-  <path d="M428 128 H468" stroke="#1c1914" fill="none"/>
-  <path d="M648 128 H688" stroke="#1c1914" fill="none"/>
-  <path d="M820 172 V212" stroke="#9c3b16" fill="none"/>
-  <path d="M688 248 H648" stroke="#1c1914" fill="none"/>
-  <path d="M228 248 H188" stroke="#1c1914" fill="none"/>
+  <!-- Node 3: Target Agent -->
+  <g transform="translate(526, 120)">
+    <rect class="card-titanium" x="0" y="0" width="200" height="98" rx="8" />
+    <rect class="badge-titanium" x="12" y="12" width="86" height="18" rx="4" />
+    <text class="sans badge-titanium-text" x="55" y="25" text-anchor="middle">TARGET AGENT</text>
+    <text class="serif-title" x="12" y="48" font-size="15">Agent Under Test</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">model or scripted replay</text>
+    <rect class="code-pill" x="12" y="73" width="144" height="17" />
+    <text class="mono code-pill-text" x="18" y="86">no keys in pack</text>
+  </g>
 
-  <text x="28" y="328" class="h">Then two questions, in order</text>
-  <text x="28" y="356" class="t" font-size="14">1. Reachability replay  no model.</text>
-  <text x="28" y="376" class="s">The exact calls that would carry the attack out. If a tool refuses here, the attack is already dead below the model.</text>
-  <text x="28" y="400" class="t" font-size="14">2. Agent trials  a model, N times.</text>
-  <text x="520" y="400" class="s">Rates with a 95% Wilson interval. A model-only refuse is not a pass.</text>
+  <!-- Connector 3 -> 4 -->
+  <path d="M 726 169 L 758 169" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+  <!-- Node 4: Recording Proxy -->
+  <g transform="translate(766, 120)">
+    <rect class="card-accent" x="0" y="0" width="238" height="98" rx="8" />
+    <rect class="badge-copper" x="12" y="12" width="112" height="18" rx="4" />
+    <text class="sans badge-copper-text" x="68" y="25" text-anchor="middle">RECORDING PROXY</text>
+    <text class="serif-title" x="12" y="48" font-size="15">Recording Proxy</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">tools/list â€¢ tools/call â€¢ hold</text>
+    <rect class="code-pill" x="12" y="73" width="102" height="17" />
+    <text class="mono code-pill-text" x="18" y="86">events.jsonl</text>
+  </g>
+
+  <!-- ================= RETURN FLOW & TOOLS ================= -->
+
+  <!-- Connector 4 -> 5 (Down) -->
+  <path d="M 885 218 L 885 244" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+  <!-- Node 5: MCP Tools -->
+  <g transform="translate(766, 252)">
+    <rect class="card" x="0" y="0" width="238" height="84" rx="8" />
+    <rect class="badge-titanium" x="12" y="12" width="86" height="18" rx="4" />
+    <text class="sans badge-titanium-text" x="55" y="25" text-anchor="middle">EXTERNAL MCP</text>
+    <text class="serif-title" x="12" y="46" font-size="15">MCP Tools (stdio)</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">tickets â€¢ refunds â€¢ email â€¢ KB</text>
+  </g>
+
+  <!-- Connector 5 -> 6 (Left) -->
+  <path d="M 766 294 L 706 294" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+  <!-- Node 6: Sealed Pack -->
+  <g transform="translate(276, 252)">
+    <rect class="card-sealed" x="0" y="0" width="422" height="84" rx="8" />
+    <rect class="badge-green" x="12" y="12" width="158" height="18" rx="4" />
+    <text class="sans badge-green-text" x="91" y="25" text-anchor="middle">IMMUTABLE EVIDENCE</text>
+    <text class="serif-title" x="12" y="46" font-size="15">Sealed Evidence Pack</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">SHA-256 of every file in manifest.json â€¢ optional HMAC overlay</text>
+  </g>
+
+  <!-- Connector 6 -> 7 (Left) -->
+  <path d="M 276 294 L 244 294" stroke="#8F552E" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+  <!-- Node 7: Desk / CI -->
+  <g transform="translate(36, 252)">
+    <rect class="card" x="0" y="0" width="200" height="84" rx="8" />
+    <rect class="badge-titanium" x="12" y="12" width="94" height="18" rx="4" />
+    <text class="sans badge-titanium-text" x="59" y="25" text-anchor="middle">AUDIT &amp; POLICY</text>
+    <text class="serif-title" x="12" y="46" font-size="15">Desk / CI Verifier</text>
+    <text class="sans" x="12" y="66" font-size="12" fill="#6b6559">tickets â€¢ policy â€¢ verify</text>
+  </g>
+
+  <!-- ================= BOTTOM SECTION: TWO QUESTIONS ================= -->
+  <g transform="translate(36, 362)">
+    <!-- Section Header -->
+    <line x1="0" y1="0" x2="968" y2="0" stroke="#ded7c8" stroke-width="1.5" stroke-dasharray="4 4" />
+    
+    <text class="serif-title" x="0" y="24" font-size="15">Then two questions, in order:</text>
+
+    <!-- Arm 1 Card -->
+    <g transform="translate(0, 36)">
+      <rect class="card-accent" x="0" y="0" width="472" height="114" rx="8" />
+      <rect class="badge-copper" x="14" y="12" width="168" height="18" rx="4" />
+      <text class="sans badge-copper-text" x="98" y="25" text-anchor="middle">ARM 1 Â· NO MODEL / OFFLINE</text>
+      
+      <text class="serif-title" x="14" y="46" font-size="14">1. Reachability replay (no model)</text>
+      <text class="sans" x="14" y="66" font-size="12" fill="#4a443b">
+        The exact calls that would carry the attack out. If a tool refuses here, the attack is already dead below the model.
+      </text>
+      
+      <rect class="code-pill" x="14" y="84" width="224" height="18" />
+      <text class="mono code-pill-text" x="20" y="97">resisted_by = tools (control)</text>
+    </g>
+
+    <!-- Arm 2 Card -->
+    <g transform="translate(496, 36)">
+      <rect class="card-titanium" x="0" y="0" width="472" height="114" rx="8" />
+      <rect class="badge-titanium" x="14" y="12" width="160" height="18" rx="4" />
+      <text class="sans badge-titanium-text" x="94" y="25" text-anchor="middle">ARM 2 Â· LIVE MODEL Ã— N</text>
+      
+      <text class="serif-title" x="14" y="46" font-size="14">2. Agent trials (model, N times)</text>
+      <text class="sans" x="14" y="66" font-size="12" fill="#4a443b">
+        Rates with a 95% Wilson interval. A model-only refuse is not a pass. Mood is not an infrastructure control.
+      </text>
+      
+      <rect class="code-pill" x="14" y="84" width="224" height="18" />
+      <text class="mono code-pill-text" x="20" y="97">resisted_by = model (split)</text>
+    </g>
+  </g>
 </svg>

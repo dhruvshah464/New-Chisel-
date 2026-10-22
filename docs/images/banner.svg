@@ -1,12 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="New Chisel  Independent Evidence">
-  <rect width="1280" height="320" fill="#f1eee6"/>
-  <rect x="0" y="0" width="1280" height="4" fill="#1c1914"/>
-  <rect x="0" y="316" width="1280" height="4" fill="#9c3b16"/>
-  <g transform="translate(72, 86)">
-    <path d="M0 92 L52 -8 L66 0 L14 100 Z" fill="#1c1914"/>
-    <path d="M52 -8 L82 10 L67 17 L59 3 Z" fill="#9c3b16"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" width="100%" height="100%">
+  <defs>
+    <!-- Matte Brushed Copper / Bronze Gradient -->
+    <linearGradient id="nc-copper" x1="0%" y1="55%" x2="100%" y2="25%">
+      <stop offset="0%" stop-color="#5A3318" />
+      <stop offset="35%" stop-color="#8F552E" />
+      <stop offset="75%" stop-color="#C8824F" />
+      <stop offset="100%" stop-color="#E5A26D" />
+    </linearGradient>
+
+    <!-- Matte Brushed Titanium / Silver Gradient -->
+    <linearGradient id="nc-titanium" x1="0%" y1="80%" x2="95%" y2="15%">
+      <stop offset="0%" stop-color="#686C6E" />
+      <stop offset="45%" stop-color="#94999C" />
+      <stop offset="85%" stop-color="#C9CDCF" />
+      <stop offset="100%" stop-color="#E2E5E7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow for Depth -->
+    <filter id="nc-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <g filter="url(#nc-shadow)">
+    <!-- Left Monogram: "N" with Chisel Edge (Copper) -->
+    <path fill="url(#nc-copper)" d="M 88 140 
+          L 146 140 
+          L 248 268 
+          L 248 140 
+          L 304 140 
+          L 304 196 
+          L 358 105 
+          L 190 420 
+          L 216 338 
+          L 146 250 
+          L 146 380 
+          L 88 380 
+          Z" />
+
+    <!-- Right Monogram: "C" with Chisel Edge (Titanium Silver) -->
+    <path fill="url(#nc-titanium)" d="M 398 60 
+          L 222 390 
+          L 298 324 
+          A 122 122 0 0 0 492 342 
+          L 451 304 
+          A 66 66 0 1 1 451 216 
+          L 492 178 
+          A 122 122 0 0 0 366 144 
+          Z" />
   </g>
-  <text x="178" y="148" fill="#1c1914" font-family="Palatino Linotype, Palatino, Iowan Old Style, Times New Roman, serif" font-size="64">New Chisel</text>
-  <text x="182" y="186" fill="#9c3b16" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="14" letter-spacing="6">INDEPENDENT EVIDENCE</text>
-  <text x="182" y="232" fill="#6b6559" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="20">A sealed, hash-checkable record of the agent you actually run.</text>
 </svg>
