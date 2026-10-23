@@ -157,6 +157,16 @@ Verdicts come from `events.jsonl` + `checks.jsonl`, not from the agent’s self-
 
 Anyone can recompute the hashes without New Chisel’s servers. The layout is [`docs/pack-spec.md`](docs/pack-spec.md). The browser verifier is [`site/verify.html`](site/verify.html).
 
+### For the security reviewer
+
+You do not need a New Chisel account, a model API key, or a hosted desk.
+
+1. Open [`site/verify.html`](site/verify.html). Load the fixed or vulnerable sample, or pick a local pack folder. The page SHA-256s the files listed in `manifest.json`. Nothing is uploaded.
+2. Or install aisec and run `aisec verify --json <pack-dir>`. Exit 0 means the listed hashes match. HMAC in `signature.json` is nested and does not flip that pass.
+3. Hashes matching is not a policy pass. Open `verdict.json` or run `aisec policy` for `resisted_by`.
+
+Sample packs live at [`site/sample/`](site/sample/). Extra files are checked only on a local folder pick (the page ignores `manifest.json` plus `signature.json`, `certificate.html`, and `attestation.json`).
+
 ---
 
 ## The two questions, in order
@@ -564,7 +574,7 @@ The authorization window still has to cover the CI clock.
 aisec reports what happened in the trials it ran. It does not guarantee that an agent is secure. Every report lists what was **not** tested.
 
 - agents that cannot be pointed at an MCP config file
-- HTTP-transport MCP servers (stdio only)
+- remote HTTP MCP servers (customer-machine Streamable HTTP in front of a stdio server is supported; wrapping a remote HTTP MCP URL is not)
 - static analysis of server code
 - runtime enforcement
 - Sigstore / keyless signing (HMAC-SHA256 today)

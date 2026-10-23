@@ -28,9 +28,11 @@ def render_badge(run_dir: str | Path) -> str:
     text = html.escape(f"New Chisel  {label}  {digest}")
     width = 24 + 7 * len(f"New Chisel  {label}  {digest}")
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="20" role="img" aria-label="{text}">
+  <a href="verify.html">
   <title>{text}</title>
   <rect width="{width}" height="20" rx="4" fill="{color}"/>
   <text x="10" y="14" fill="#fff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">{text}</text>
+  </a>
 </svg>
 """
 

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Chisel — sample packs</title>
+<meta name="description" content="Two sealed New Chisel sample packs a reviewer can hash-check.">
+<style>
+  :root {
+    --ink: #1c1914; --muted: #6b6559; --line: #d6d0c4; --soft: #faf8f2; --accent: #9c3b16;
+    --red: #9c3b16; --red-bg: #f4e6dc; --green: #3d5344; --green-bg: #e4ece4;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+    --sans: "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", sans-serif;
+    --mono: "SF Mono", Menlo, Consolas, ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); background: #f1eee6; font: 16px/1.55 var(--sans); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  header { border-bottom: 1px solid var(--ink); background: var(--soft); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 56px; gap: 16px; flex-wrap: wrap; padding: 8px 24px; }
+  .brand { font-family: var(--serif); font-weight: 400; letter-spacing: .01em; }
+  .brand span { color: var(--muted); font-family: var(--sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; margin-left: 10px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  nav a:hover { color: var(--ink); }
+  nav a:visited { color: #8a8478; }
+  nav a.current { color: var(--ink); }
+  section { padding: 64px 0; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(32px, 5vw, 46px); line-height: 1.12; letter-spacing: -.02em; margin: 0 0 18px; }
+  .lede { font-size: 18px; color: var(--muted); max-width: 720px; }
+  .sample { display: grid; gap: 1px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 28px; background: var(--line); border: 1px solid var(--line); }
+  .sample .card { display: flex; flex-direction: column; gap: 10px; padding: 22px; background: var(--soft); }
+  .card p { color: var(--muted); margin: 0; }
+  h3 { font-size: 16px; margin: 0 0 6px; font-weight: 500; }
+  .pill { display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border: 1px solid var(--line); }
+  .pill.failed { color: var(--red); background: var(--red-bg); border-color: var(--red); }
+  .pill.resisted { color: var(--green); background: var(--green-bg); border-color: var(--green); }
+  .card a.more { margin-top: auto; color: var(--accent); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; }
+  .card a.more:hover { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  footer { padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">New Chisel <span>Independent Evidence</span></div>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../verify.html">Verify</a>
+      <a class="current" href="index.html" aria-current="page">Samples</a>
+    </nav>
+  </div>
+</header>
+<section>
+  <div class="wrap">
+    <h1>Sample packs</h1>
+    <p class="lede">Two sealed packs from the demo support agent. Hash-check them in the browser. Nothing is uploaded.</p>
+    <div class="sample">
+      <div class="card">
+        <div><span class="pill failed">6 of 6 attacks FAILED</span></div>
+        <h3>Vulnerable variant</h3>
+        <p>Every attack lands. Replay-only: this shows what the tools allow when the model is fooled, not how often a model is fooled.</p>
+        <a class="more" href="../verify.html">Hash-check this pack →</a>
+        <a class="more" href="vulnerable/report.html">Read the report →</a>
+      </div>
+      <div class="card">
+        <div><span class="pill resisted">6 of 6 attacks RESISTED</span></div>
+        <h3>Fixed variant</h3>
+        <p>Each harmful call is still attempted, and the tool refuses it. Both legitimate workflows still complete.</p>
+        <a class="more" href="../verify.html">Hash-check this pack →</a>
+        <a class="more" href="fixed/report.html">Read the report →</a>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">Pack spec version 1. Extras are checked only on a local folder pick.</div>
+</footer>
+</body>
+</html>

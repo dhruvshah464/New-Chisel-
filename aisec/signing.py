@@ -90,6 +90,40 @@ def read_signature(run_dir: str | Path) -> dict[str, Any] | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def inspect_signature(run_dir: str | Path, key: bytes | None = None) -> dict[str, Any] | None:
+    """Nested HMAC overlay. Never flips the reviewer hash pass. ``None`` if unsigned."""
+    run_dir = Path(run_dir)
+    payload = read_signature(run_dir)
+    if payload is None:
+        return None
+    report = {
+        "ok": False,
+        "alg": payload.get("alg") or ALG,
+        "key_id": payload.get("key_id") or "",
+        "error": None,
+    }
+    if payload.get("alg") != ALG:
+        report["error"] = "alg_unsupported"
+        return report
+    key = load_signing_key() if key is None else key
+    if key is None:
+        report["error"] = "key_missing"
+        return report
+    if payload.get("key_id") != key_id(key):
+        report["error"] = "key_id_mismatch"
+        return report
+    digest = _sha256_bytes(_manifest_bytes(run_dir))
+    if payload.get("manifest_sha256") != digest:
+        report["error"] = "manifest_digest_mismatch"
+        return report
+    expected = hmac.new(key, digest.encode("ascii"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, str(payload.get("signature") or "")):
+        report["error"] = "hmac_mismatch"
+        return report
+    report["ok"] = True
+    return report
+
+
 def verify_signature(run_dir: str | Path, key: bytes | None = None) -> dict[str, Any]:
     """Require a valid signature. Raises IntegrityError if missing or wrong."""
     run_dir = Path(run_dir)

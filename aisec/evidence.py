@@ -196,6 +196,63 @@ def manifest_digest(run_dir: str | Path) -> str:
     return _sha256_file(Path(run_dir) / MANIFEST_NAME)
 
 
+def _hash_lists(run_dir: Path, manifest: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
+    manifest_path = run_dir / MANIFEST_NAME
+    expected = {rel: meta["sha256"] for rel, meta in (manifest.get("files") or {}).items()}
+    actual = {
+        path.relative_to(run_dir).as_posix(): _sha256_file(path)
+        for path in _iter_files(run_dir)
+        if path != manifest_path and path.name not in UNTRACKED
+    }
+    missing = sorted(set(expected) - set(actual))
+    extra = sorted(set(actual) - set(expected))
+    changed = sorted(rel for rel in expected.keys() & actual.keys() if expected[rel] != actual[rel])
+    return missing, extra, changed
+
+
+def inspect(run_dir: str | Path) -> dict[str, Any]:
+    """Non-raising hash inspect. Top-level ``ok`` follows hashes only; HMAC is not applied here."""
+    run_dir = Path(run_dir)
+    report: dict[str, Any] = {
+        "ok": False,
+        "run": str(run_dir),
+        "manifest_sha256": None,
+        "missing": [],
+        "changed": [],
+        "extra": [],
+        "sealed_at": None,
+        "error": None,
+    }
+    manifest_path = run_dir / MANIFEST_NAME
+    if not manifest_path.is_file():
+        report["error"] = "missing_manifest"
+        return report
+    try:
+        manifest = load_json(manifest_path)
+    except json.JSONDecodeError:
+        report["error"] = "invalid_manifest"
+        return report
+    if not isinstance(manifest, dict) or not manifest.get("sealed"):
+        report["error"] = "unsealed"
+        return report
+    try:
+        files = manifest.get("files") or {}
+        if not isinstance(files, dict) or any(not isinstance(meta, dict) or "sha256" not in meta for meta in files.values()):
+            report["error"] = "invalid_manifest"
+            return report
+        report["manifest_sha256"] = _sha256_file(manifest_path)
+        report["sealed_at"] = manifest.get("sealed_at")
+        missing, extra, changed = _hash_lists(run_dir, manifest)
+    except (OSError, KeyError, TypeError):
+        report["error"] = "invalid_manifest"
+        return report
+    report["missing"] = missing
+    report["extra"] = extra
+    report["changed"] = changed
+    report["ok"] = not (missing or extra or changed)
+    return report
+
+
 def verify_manifest(run_dir: str | Path) -> dict[str, Any]:
     """Recompute every file hash; raise IntegrityError on any missing, extra or changed file."""
     run_dir = Path(run_dir)
@@ -208,15 +265,7 @@ def verify_manifest(run_dir: str | Path) -> dict[str, Any]:
         raise IntegrityError(f"{MANIFEST_NAME} is not valid JSON: {exc}") from exc
     if not manifest.get("sealed"):
         raise IntegrityError("run is not sealed")
-    expected = {rel: meta["sha256"] for rel, meta in (manifest.get("files") or {}).items()}
-    actual = {
-        path.relative_to(run_dir).as_posix(): _sha256_file(path)
-        for path in _iter_files(run_dir)
-        if path != manifest_path and path.name not in UNTRACKED
-    }
-    missing = sorted(set(expected) - set(actual))
-    extra = sorted(set(actual) - set(expected))
-    changed = sorted(rel for rel in expected.keys() & actual.keys() if expected[rel] != actual[rel])
+    missing, extra, changed = _hash_lists(run_dir, manifest)
     if missing or extra or changed:
         details = []
         if missing:

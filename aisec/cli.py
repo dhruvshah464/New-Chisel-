@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import sys
 from pathlib import Path
 
@@ -41,6 +42,7 @@ from .evidence import (
     DEFAULT_RUNS_ROOT,
     EvidenceError,
     IntegrityError,
+    inspect,
     load_json,
     manifest_digest,
     resolve_run,
@@ -50,6 +52,7 @@ from .signing import (
     ENV_KEY,
     SigningError,
     generate_key,
+    inspect_signature,
     read_signature,
     sign_pack,
     verify_signature,
@@ -68,7 +71,11 @@ DEFAULT_SCENARIOS = "scenarios/support-agent"
 DEFAULT_REPEAT = 3
 DEFAULT_REPORTS_ROOT = Path(".aisec") / "reports"
 EXIT_USAGE = EXIT_INCONCLUSIVE
-PROXY_USAGE = "usage: aisec proxy [--server-name NAME] [--cwd DIR] -- <command> [args...]"
+PROXY_USAGE = (
+    "usage: aisec proxy [--server-name NAME] [--cwd DIR] -- <command> [args...]\n"
+    "       aisec proxy --transport http --host 127.0.0.1 --port PORT --events RUN_DIR -- <command> [args...]\n"
+    "       aisec proxy seal RUN_DIR"
+)
 
 
 def _positive_int(value: str) -> int:
@@ -186,6 +193,11 @@ def cmd_verify(args: argparse.Namespace) -> int:
     run_dir = _resolve(args.run, args.runs_root, "verify")
     if run_dir is None:
         return EXIT_USAGE
+    if getattr(args, "as_json", False):
+        report = inspect(run_dir)
+        report["signature"] = inspect_signature(run_dir)
+        print(json.dumps(report, sort_keys=True, ensure_ascii=False))
+        return EXIT_OK if report["ok"] else EXIT_INTEGRITY
     try:
         manifest = verify_manifest(run_dir)
     except IntegrityError as exc:
@@ -572,11 +584,33 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return serve(host=args.host, port=args.port, data_dir=args.data_dir, bootstrap=args.bootstrap)
 
 
+def _http_proxy_argv(rest: list[str]) -> bool:
+    own = rest[: rest.index("--")] if "--" in rest else rest
+    return any(
+        token == "--transport"
+        or token.startswith("--transport=")
+        or token == "--events"
+        or token.startswith("--events=")
+        or token == "--allow-non-loopback"
+        for token in own
+    )
+
+
 def cmd_proxy(rest: list[str]) -> int:
     if not rest or rest[0] in ("-h", "--help"):
         print(PROXY_USAGE, file=sys.stderr)
         return EXIT_OK if rest else EXIT_USAGE
-    return proxy_main(rest if rest[0] == "wrap" else ["wrap", *rest])
+    if rest[0] == "seal":
+        from .proxy import cmd_seal
+
+        return cmd_seal(rest[1:])
+    if rest[0] == "wrap" or rest[0] == "--":
+        return proxy_main(rest if rest[0] == "wrap" else ["wrap", *rest])
+    if _http_proxy_argv(rest):
+        from .proxy import cmd_http
+
+        return cmd_http(rest)
+    return proxy_main(["wrap", *rest])
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -627,6 +661,7 @@ def build_parser() -> argparse.ArgumentParser:
     verify = sub.add_parser("verify", help="check that no file in a run changed after it was sealed")
     verify.add_argument("run", help="run directory, run id, or 'latest'")
     verify.add_argument("--runs-root", default=str(DEFAULT_RUNS_ROOT))
+    verify.add_argument("--json", dest="as_json", action="store_true", help="print the hashes-only inspect report")
     verify.set_defaults(handler=cmd_verify)
 
     sign = sub.add_parser("sign", help="sign a sealed pack with AISEC_SIGNING_KEY")

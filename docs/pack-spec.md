@@ -1,4 +1,6 @@
-# New Chisel evidence pack spec (v1)
+# New Chisel evidence pack spec
+
+Version: 1
 
 This is an independent, vendor-neutral format for a sealed record of an AI agent
 under attack. New Chisel issues packs in this layout. Anyone can hash-check a pack

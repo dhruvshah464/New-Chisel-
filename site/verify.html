@@ -3,63 +3,207 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>New Chisel — verify a pack in the browser</title>
+<title>New Chisel — verify a sealed pack</title>
+<meta name="description" content="Hash-check a New Chisel evidence pack in the browser. Nothing is uploaded.">
 <style>
-  body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 40px auto; color: #111; padding: 0 20px; }
-  h1 { font-size: 24px; }
-  pre { background: #f4f4f4; padding: 12px; overflow: auto; }
-  .muted { color: #555; }
+  :root {
+    --ink: #1c1914; --muted: #6b6559; --line: #d6d0c4; --soft: #faf8f2; --accent: #9c3b16;
+    --red: #9c3b16; --red-bg: #f4e6dc; --green: #3d5344; --green-bg: #e4ece4;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+    --sans: "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", sans-serif;
+    --mono: "SF Mono", Menlo, Consolas, ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); background: #f1eee6; font: 16px/1.55 var(--sans); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  header { border-bottom: 1px solid var(--ink); background: var(--soft); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 56px; gap: 16px; flex-wrap: wrap; padding: 8px 24px; }
+  .brand { font-family: var(--serif); font-weight: 400; letter-spacing: .01em; }
+  .brand span { color: var(--muted); font-family: var(--sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; margin-left: 10px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  nav a:hover { color: var(--ink); }
+  nav a:visited { color: #8a8478; }
+  nav a.current { color: var(--ink); }
+  main { padding: 48px 0 72px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 5vw, 40px); line-height: 1.12; letter-spacing: -.02em; margin: 0 0 14px; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 28px; }
+  .actions { display: flex; flex-direction: column; gap: 12px; margin: 0 0 28px; }
+  button, .folder { min-height: 44px; padding: 10px 16px; font: 13px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .primary { background: var(--ink); color: var(--soft); }
+  .primary:hover { background: var(--accent); border-color: var(--accent); }
+  .secondary:hover { background: var(--soft); }
+  button:focus-visible, a:focus-visible, .folder:focus-visible, input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .folder { display: flex; align-items: center; }
+  .folder input { margin-right: 10px; }
+  .disclaimer { font-size: 14px; color: var(--muted); margin: 0 0 28px; }
+  #result { margin: 0 0 28px; padding: 18px 20px; background: var(--soft); border: 1px solid var(--line); min-height: 72px; }
+  .pill { display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; border: 1px solid var(--line); }
+  .pill.ok { color: var(--green); background: var(--green-bg); border-color: var(--green); }
+  .pill.fail { color: var(--red); background: var(--red-bg); border-color: var(--red); }
+  .digest { font: 13px/1.6 var(--mono); margin: 12px 0 0; }
+  .lists { font: 13px/1.6 var(--mono); margin: 12px 0 0; white-space: pre-wrap; }
+  .meaning { color: var(--muted); font-size: 14px; margin: 12px 0 0; }
+  .questionnaire { color: var(--muted); font-size: 13px; margin: 0; }
+  code { font: 13px var(--mono); background: #e8e4da; padding: 1px 5px; }
+  footer { padding: 0 0 48px; color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
-<p><strong>New Chisel</strong> · Independent Evidence</p>
-<h1>Verify a sealed pack without installing anything</h1>
-<p>Select every file in an evidence pack folder (including <code>manifest.json</code>). This page hashes them in your browser with SHA-256. Nothing is uploaded. A model company cannot be the notary for this check.</p>
-<p><input id="files" type="file" multiple></p>
-<p><button id="go">Verify</button></p>
-<pre id="out">Waiting.</pre>
-<p class="muted"><a href="index.html">Back</a></p>
+<header>
+  <div class="wrap">
+    <div class="brand">New Chisel <span>Independent Evidence</span></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a class="current" href="verify.html" aria-current="page">Verify</a>
+      <a href="sample/index.html">Samples</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <h1>Verify a sealed pack</h1>
+    <p class="lede">Hashes run here. Nothing is uploaded.</p>
+    <div class="actions">
+      <button type="button" class="primary" id="load-fixed">Load fixed sample</button>
+      <button type="button" class="secondary" id="load-vulnerable">Load vulnerable sample</button>
+      <label class="folder secondary">Choose a folder<input id="folder" type="file" webkitdirectory multiple hidden></label>
+    </div>
+    <p class="disclaimer">Sample buttons hash the files listed in the sample manifest. Extra files are checked only when you pick a local folder. Folder extras ignore <code>manifest.json</code>, <code>signature.json</code>, <code>certificate.html</code>, and <code>attestation.json</code>.</p>
+    <div id="result" aria-live="polite" aria-atomic="true">Waiting.</div>
+    <p class="questionnaire">After hashes match, this is still not a policy pass. Open <code>verdict.json</code> or run <code>aisec policy</code> for <code>resisted_by</code>.</p>
+  </div>
+</main>
+<footer>
+  <div class="wrap">A model vendor cannot be the notary for this check.</div>
+</footer>
 <script>
 const UNTRACKED = new Set(["signature.json", "certificate.html", "attestation.json"]);
+const result = document.getElementById("result");
+let generation = 0;
+
 async function sha256Hex(buffer) {
   const hash = await crypto.subtle.digest("SHA-256", buffer);
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-function findFile(byName, rel) {
-  return byName[rel] || byName[rel.split("/").pop()];
+
+function renderOk(sealedAt, digest) {
+  result.innerHTML = "";
+  const pill = document.createElement("span");
+  pill.className = "pill ok";
+  pill.textContent = "HASHES MATCH";
+  const meta = document.createElement("p");
+  meta.className = "digest";
+  meta.textContent = (sealedAt || "sealed") + "  " + digest.slice(0, 12);
+  const meaning = document.createElement("p");
+  meaning.className = "meaning";
+  meaning.textContent = "Not a policy pass. Open verdict.json or run aisec policy for resisted_by.";
+  result.append(pill, meta, meaning);
 }
-document.getElementById("go").onclick = async () => {
-  const out = document.getElementById("out");
+
+function renderFail(missing, changed, extra) {
+  result.innerHTML = "";
+  const pill = document.createElement("span");
+  pill.className = "pill fail";
+  pill.textContent = "HASHES DO NOT MATCH";
+  const lists = document.createElement("p");
+  lists.className = "lists";
+  const lines = [];
+  if (missing.length) lines.push("missing: " + missing.join(" "));
+  if (changed.length) lines.push("changed: " + changed.join(" "));
+  if (extra.length) lines.push("extra: " + extra.join(" "));
+  lists.textContent = lines.join("\n") || "listed files do not match";
+  result.append(pill, lists);
+}
+
+function renderFetchError() {
+  result.textContent = "Could not load the sample. Try again.";
+}
+
+async function hashListed(filesByRel, manifest, checkExtras) {
+  const expected = manifest.files || {};
+  const missing = [];
+  const changed = [];
+  for (const [rel, meta] of Object.entries(expected)) {
+    const file = filesByRel[rel];
+    if (!file) { missing.push(rel); continue; }
+    const digest = await sha256Hex(await file.arrayBuffer());
+    if (digest !== meta.sha256) changed.push(rel);
+  }
+  let extra = [];
+  if (checkExtras) {
+    extra = Object.keys(filesByRel).filter((name) => {
+      const base = name.split("/").pop();
+      if (name === "manifest.json" || UNTRACKED.has(name) || UNTRACKED.has(base)) return false;
+      return !(name in expected);
+    }).sort();
+  }
+  return { missing, changed, extra, sealedAt: manifest.sealed_at };
+}
+
+async function loadSample(name) {
+  const token = ++generation;
+  result.textContent = "Checking listed files.";
   try {
-    const files = [...(document.getElementById("files").files || [])];
-    if (!files.length) { out.textContent = "Select the pack files."; return; }
-    const byName = {};
-    for (const file of files) byName[file.name] = file;
-    if (!byName["manifest.json"]) { out.textContent = "manifest.json is required."; return; }
-    const manifest = JSON.parse(await byName["manifest.json"].text());
-    const expected = manifest.files || {};
-    const missing = [];
-    const changed = [];
-    for (const [rel, meta] of Object.entries(expected)) {
-      const file = findFile(byName, rel);
-      if (!file) { missing.push(rel); continue; }
-      const digest = await sha256Hex(await file.arrayBuffer());
-      if (digest !== meta.sha256) changed.push(rel);
+    const manifestUrl = name === "fixed" ? "sample/fixed/manifest.json" : "sample/vulnerable/manifest.json";
+    const manifestResp = await fetch(manifestUrl);
+    if (!manifestResp.ok) throw new Error("fetch");
+    const manifestBytes = await manifestResp.arrayBuffer();
+    const manifest = JSON.parse(new TextDecoder().decode(manifestBytes));
+    const filesByRel = {};
+    const prefix = name === "fixed" ? "sample/fixed/" : "sample/vulnerable/";
+    for (const rel of Object.keys(manifest.files || {})) {
+      const resp = await fetch(prefix + rel);
+      if (!resp.ok) throw new Error("fetch");
+      filesByRel[rel] = { arrayBuffer: () => resp.arrayBuffer() };
     }
-    const extras = Object.keys(byName).filter((name) => {
-      if (name === "manifest.json" || UNTRACKED.has(name)) return false;
-      return !(name in expected) && !Object.keys(expected).some((rel) => rel === name || rel.endsWith("/" + name));
-    });
-    out.textContent = JSON.stringify({
-      ok: missing.length === 0 && changed.length === 0,
-      issuer: "New Chisel Independent Evidence — not issued by a model vendor",
-      sealed_at: manifest.sealed_at,
-      missing,
-      changed,
-      extra: extras
-    }, null, 2);
+    const digest = await sha256Hex(manifestBytes);
+    const { missing, changed, extra, sealedAt } = await hashListed(filesByRel, manifest, false);
+    if (token !== generation) return;
+    if (missing.length || changed.length || extra.length) renderFail(missing, changed, extra);
+    else renderOk(sealedAt, digest);
   } catch (err) {
-    out.textContent = String(err);
+    if (token !== generation) return;
+    renderFetchError();
+  }
+}
+
+document.getElementById("load-fixed").onclick = () => loadSample("fixed");
+document.getElementById("load-vulnerable").onclick = () => loadSample("vulnerable");
+
+document.getElementById("folder").onchange = async (event) => {
+  const token = ++generation;
+  const files = [...(event.target.files || [])];
+  if (!files.length) { result.textContent = "Waiting. Choose a folder or a sample."; return; }
+  if (files.some((file) => !file.webkitRelativePath)) {
+    result.textContent = "This browser did not give folder paths. Use a folder pick, not basename matching.";
+    return;
+  }
+  result.textContent = "Checking " + files.length + " files.";
+  const byRel = {};
+  for (const file of files) byRel[file.webkitRelativePath.replace(/\\/g, "/")] = file;
+  const manifests = Object.keys(byRel).filter((rel) => rel === "manifest.json" || rel.endsWith("/manifest.json"));
+  if (!manifests.length) { renderFail(["manifest.json"], [], []); return; }
+  manifests.sort((a, b) => a.split("/").length - b.split("/").length || a.length - b.length);
+  const manifestRel = manifests[0];
+  const prefix = manifestRel.includes("/") ? manifestRel.slice(0, manifestRel.lastIndexOf("/") + 1) : "";
+  const packFiles = {};
+  for (const [rel, file] of Object.entries(byRel)) {
+    if (prefix && !rel.startsWith(prefix)) continue;
+    packFiles[rel.slice(prefix.length)] = file;
+  }
+  try {
+    const manifestFile = packFiles["manifest.json"];
+    const manifestBytes = await manifestFile.arrayBuffer();
+    const manifest = JSON.parse(new TextDecoder().decode(manifestBytes));
+    const digest = await sha256Hex(manifestBytes);
+    const { missing, changed, extra, sealedAt } = await hashListed(packFiles, manifest, true);
+    if (token !== generation) return;
+    if (missing.length || changed.length || extra.length) renderFail(missing, changed, extra);
+    else renderOk(sealedAt, digest);
+  } catch (err) {
+    if (token !== generation) return;
+    renderFail(["manifest.json"], [], []);
   }
 };
 </script>
