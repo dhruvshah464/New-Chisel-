@@ -20,6 +20,12 @@ jobs:
         run: uv sync --frozen --extra dev --extra model --extra cloud
       - name: Test (offline; no API key is used)
         run: uv run pytest -q
+      - name: Sample packs hash-check
+        run: |
+          uv run aisec spec --check site/sample/fixed
+          uv run aisec verify --json site/sample/fixed
+          uv run aisec spec --check site/sample/vulnerable
+          uv run aisec verify --json site/sample/vulnerable
 
   action:
     runs-on: ubuntu-latest

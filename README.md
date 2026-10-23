@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/command-aisec%200.1.0-1c1914?style=flat-square" alt="aisec 0.1.0">
   <img src="https://img.shields.io/badge/MCP-stdio%20proxy-9c3b16?style=flat-square" alt="MCP stdio proxy">
   <img src="https://img.shields.io/badge/seal-SHA--256%20%2B%20HMAC-1c1914?style=flat-square" alt="SHA-256 + HMAC">
+  <a href="https://dhruvshah464.github.io/New-Chisel-/verify.html"><img src="https://img.shields.io/badge/hash%20checker-open-9c3b16?style=flat-square" alt="Open the public hash checker"></a>
 </p>
 
 <p align="center">
@@ -155,7 +156,17 @@ Planted **canaries** are synthetic personal data already in the target’s recor
 
 Verdicts come from `events.jsonl` + `checks.jsonl`, not from the agent’s self-report. Then aisec writes the pack, hashes every file into `manifest.json` (written last), and makes the files read-only. Optional HMAC-SHA256 of the **manifest digest** is written to `signature.json`, which is *outside* the manifest on purpose: it names the digest, so it cannot sit inside the thing it signs.
 
-Anyone can recompute the hashes without New Chisel’s servers. The layout is [`docs/pack-spec.md`](docs/pack-spec.md). The browser verifier is [`site/verify.html`](site/verify.html).
+Anyone can recompute the hashes without New Chisel’s servers. The layout is [`docs/pack-spec.md`](docs/pack-spec.md). The browser verifier is [`site/verify.html`](site/verify.html) and, after Pages deploys, [the public hash checker](https://dhruvshah464.github.io/New-Chisel-/verify.html).
+
+### For the security reviewer
+
+You do not need a New Chisel account, a model API key, or a hosted desk.
+
+1. Open [the public hash checker](https://dhruvshah464.github.io/New-Chisel-/verify.html) or [`site/verify.html`](site/verify.html). Load the fixed or vulnerable sample, or pick a local pack folder. The page SHA-256s the files listed in `manifest.json`. Nothing is uploaded.
+2. Or install aisec and run `aisec verify --json <pack-dir>`. Exit 0 means the listed hashes match. HMAC in `signature.json` is nested and does not flip that pass.
+3. Hashes matching is not a policy pass. Open `verdict.json` or run `aisec policy` for `resisted_by`.
+
+Sample packs live at [`site/sample/`](site/sample/). Extra files are checked only on a local folder pick (the page ignores `manifest.json` plus `signature.json`, `certificate.html`, and `attestation.json`).
 
 ---
 
@@ -264,6 +275,8 @@ You need [uv](https://docs.astral.sh/uv/) (or Python 3.11+ and pip). No model AP
 ```sh
 git clone https://github.com/dhruvshah464/New-Chisel-.git
 cd New-Chisel-
+./scripts/demo.sh                       # fixed replay + verify --json; no API key
+# or:
 uv sync --extra dev --extra model        # or: pip install -e '.[dev,model]'
 
 # No model, no key: can the attack even be carried out through the tools?
@@ -350,6 +363,7 @@ See [`docs/threat-model.md`](docs/threat-model.md), [`legal/dpa.md`](legal/dpa.m
 | `aisec report <run>` | Verifies, then re-renders `report.md` / `report.html` from the evidence. Says whether the result matches the sealed copy byte for byte. |
 | `aisec verify <run>` | Recomputes every file hash. Fails on missing, extra, or changed files. Prints the manifest digest. |
 | `aisec proxy -- <command> [args...]` | One stdio MCP server behind the recording proxy. Used internally for every trial. |
+| `aisec proxy --transport http --host 127.0.0.1 --port PORT --events RUN_DIR -- <command>` | Same wrap, on Streamable HTTP at `/mcp`. Loopback only unless `--allow-non-loopback`. |
 | `aisec sign <run>` / `aisec sign-key` | HMAC-sign a pack, or print a new hex key. |
 | `aisec upload <run>` | Upload a signed pack (`AISEC_URL`, `AISEC_TOKEN`, `AISEC_PROJECT`). |
 | `aisec serve` | Local desk: ingest, inbox, sealed HTML. |
@@ -564,7 +578,7 @@ The authorization window still has to cover the CI clock.
 aisec reports what happened in the trials it ran. It does not guarantee that an agent is secure. Every report lists what was **not** tested.
 
 - agents that cannot be pointed at an MCP config file
-- HTTP-transport MCP servers (stdio only)
+- remote HTTP MCP servers (customer-machine Streamable HTTP in front of a stdio server is supported; wrapping a remote HTTP MCP URL is not)
 - static analysis of server code
 - runtime enforcement
 - Sigstore / keyless signing (HMAC-SHA256 today)

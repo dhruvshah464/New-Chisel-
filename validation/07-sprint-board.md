@@ -18,13 +18,13 @@ calls. Status below is what the repo can know as of 2026-10-09.
 
 After ≥30 conversations, apply `04-interview-script.md`:
 
-- 3 paid pilots or 5 strong signals → keep the hosted control plane and sell Check
+- 3 paid pilots or 5 strong signals → keep selling sealed packs (notary). Customer-machine HTTP MCP is allowed when the buyer needs it. Do not keep a hosted control plane. Do not sell a runtime gateway.
 - Problem real, will not buy a separate tool → consultancies
 - Loved, unpaid → wrong buyer
 - Most do not have this problem → change the use case
 
-The control plane in this repo is built so a pilot can upload a pack the same
-day they sign. It is not a substitute for the conversations.
+The notary is the sealed pack a reviewer hash-checks. It is not a substitute
+for the conversations.
 
 ## Days 1–30 (founder)
 
