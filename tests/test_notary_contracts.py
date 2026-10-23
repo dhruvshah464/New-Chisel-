@@ -25,6 +25,8 @@ FIXTURE = Path(__file__).parent / "fixtures" / "fixture_server.py"
 VERIFY_HTML = Path(__file__).resolve().parents[1] / "site/verify.html"
 SAMPLE_INDEX = Path(__file__).resolve().parents[1] / "site/sample/index.html"
 CI_YML = Path(__file__).resolve().parent / os.path.join("..", ".github", "workflows", "ci.yml")
+PAGES_YML = Path(__file__).resolve().parent / os.path.join("..", ".github", "workflows", "pages.yml")
+DEMO_SH = Path(__file__).resolve().parent / os.path.join("..", "scripts", "demo.sh")
 
 
 def make_writable(path: Path) -> None:
@@ -214,6 +216,20 @@ def test_ci_yml_checks_sample_packs():
     assert "aisec verify --json site/sample/fixed" in text
     assert "aisec spec --check site/sample/vulnerable" in text
     assert "aisec verify --json site/sample/vulnerable" in text
+
+
+def test_pages_yml_publishes_site():
+    text = PAGES_YML.read_text(encoding="utf-8")
+    assert "path: site" in text
+    assert "actions/deploy-pages@" in text
+    assert "actions/upload-pages-artifact@" in text
+
+
+def test_demo_sh_replays_and_verifies():
+    text = DEMO_SH.read_text(encoding="utf-8")
+    assert "aisec run --variant fixed --replay-only" in text
+    assert "aisec verify --json latest" in text
+    assert DEMO_SH.stat().st_mode & 0o111
 
 
 def test_verify_html_uses_relative_samples_and_live_region():
